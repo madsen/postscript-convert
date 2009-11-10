@@ -18,7 +18,7 @@ package PostScript::Convert;
 #---------------------------------------------------------------------
 
 use 5.008;
-our $VERSION = '0.01';
+our $VERSION = '0.01';          ## no critic
 
 use strict;
 use warnings;
@@ -401,3 +401,9 @@ PostScript::Convert is not compatible with versions of
 PostScript::File older than 2.00.  (However, you could have an older
 version of PostScript::File write the PostScript to a file, and then
 pass that file to C<psconvert>.)
+
+=for Pod::Coverage
+apply_format
+check_options
+^convert_
+guess_output_filename
