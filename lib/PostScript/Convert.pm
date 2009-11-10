@@ -24,7 +24,7 @@ use strict;
 use warnings;
 use Carp qw(croak verbose);
 use File::Spec ();
-use Scalar::Util qw(blessed reftype);
+use Scalar::Util qw(blessed openhandle reftype);
 
 =head1 DEPENDENCIES
 
@@ -87,6 +87,7 @@ sub psconvert
   unshift @_, 'filename' if @_ % 2;
   my %opt = (%default, @_);
 
+  return convert_fh( openhandle $ps, \%opt) if openhandle $ps;
   return convert_object($ps, \%opt) if blessed $ps;
   return convert_ref(   $ps, \%opt) if ref $ps;
   convert_filename(     $ps, \%opt);
@@ -97,7 +98,6 @@ sub convert_object
 {
   my ($obj, $opt) = @_;
 
-  return convert_fh(    $obj, $opt) if $obj->isa('IO::Handle');
   return convert_psfile($obj, $opt) if $obj->isa('PostScript::File');
 
   return convert_psfile($obj->get__PostScript_File, $opt)
@@ -159,8 +159,6 @@ sub convert_ref
   my ($ref, $opt) = @_;
 
   my $type = reftype $ref;
-
-  convert_fh($ref, $opt) if $type eq 'GLOB';
 
   croak "Don't know how to handle a $type ref"
       unless $type eq 'SCALAR' or $type eq 'ARRAY';
