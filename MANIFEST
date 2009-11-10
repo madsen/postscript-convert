@@ -4,6 +4,7 @@ MANIFEST
 META.yml
 Makefile.PL
 README
+examples/psconvert
 lib/PostScript/Convert.pm
 t/00.load.t
 t/release-perlcritic.t
