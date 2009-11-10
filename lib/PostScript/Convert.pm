@@ -118,39 +118,51 @@ sub convert_psfile
 
   # Save old filename:
   my $oldFN  = $ps->get_filename;
-  my $oldExt = $ps->get_file_ext;
   $opt->{input} ||= "$oldFN.ps" if defined $oldFN;
-
-  # Compute output filename:
-  apply_format($opt);
-  my ($outVol, $outDir, $outFN) =
-      File::Spec->splitpath( guess_output_filename($opt) );
-
-  $outFN =~ s/(\.\w+)$// or croak "No extension in $outFN";
-  my $ext = $1;
 
   require File::Temp;
 
-  my $dir = File::Temp->newdir;
+  if ($ps->get_eps and $ps->get_pagecount > 1) {
+    # Compute output filename:
+    apply_format($opt);
+    my ($outVol, $outDir, $outFN) =
+        File::Spec->splitpath( guess_output_filename($opt) );
 
-  $ps->set_filename($outFN, $dir);
-  $ps->set_file_ext(undef);
+    $outFN =~ s/(\.\w+)$// or croak "No extension in $outFN";
+    my $ext = $1;
 
-  # Process the file(s):
-  my @files = $ps->output;
+    my $dir = File::Temp->newdir;
 
-  foreach my $fn (@files) {
-    $outFN = (File::Spec->splitpath($fn))[2];
-    $outFN =~ s/\.\w+$/$ext/ or die "Expected extension in $outFN";
+    my $oldExt = $ps->get_file_ext;
+    $ps->set_filename($outFN, $dir);
+    $ps->set_file_ext(undef);
 
-    $opt->{filename} = File::Spec->catpath( $outVol, $outDir, $outFN );
+    # Process the file(s):
+    my @files = $ps->output;
 
-    convert_filename($fn, $opt);
-  } # end foreach $fn in @files
+    foreach my $fn (@files) {
+      $outFN = (File::Spec->splitpath($fn))[2];
+      $outFN =~ s/\.\w+$/$ext/ or die "Expected extension in $outFN";
 
-  # Restore settings:
-  $ps->set_filename($oldFN);
-  $ps->set_file_ext($oldExt);
+      $opt->{filename} = File::Spec->catpath( $outVol, $outDir, $outFN );
+
+      convert_filename($fn, $opt);
+    } # end foreach $fn in @files
+
+    # Restore settings:
+    $ps->set_filename($oldFN);
+    $ps->set_file_ext($oldExt);
+  } # end if EPS with multiple pages
+  else {
+    # Only one file, we don't need a temporary directory:
+    my $fh = File::Temp->new;
+
+    $ps->output($fh);
+
+    seek($fh, 0,0) or croak "Can't seek temporary file: $!";
+
+    convert_fh($fh, $opt);
+  } # end else only one PostScript file to process
 } # end convert_psfile
 
 #---------------------------------------------------------------------
