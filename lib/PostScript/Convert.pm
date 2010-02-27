@@ -46,6 +46,8 @@ our @EXPORT = qw(psconvert);
 #=====================================================================
 # Package PostScript::Convert:
 
+our $Debug;  # Set this to a true value for debugging output to STDERR
+
 our %default = (
   ghostscript => ($^O =~ 'MSWin32' ? 'gswin32c.exe' : 'gs'),
 );
@@ -281,7 +283,7 @@ The C<device> option (which normally comes from the C<format>) was not set.
   push @cmd, @{ $opt->{format_param} } if $opt->{format_param};
   push @cmd, @{ $opt->{gs_param} }     if $opt->{gs_param};
 
-  print STDERR "@cmd\n";
+  print STDERR "@cmd\n" if $Debug;
 
   @cmd;
 } # end check_options
