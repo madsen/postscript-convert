@@ -32,6 +32,11 @@ PostScript::Convert depends on L<Carp>, L<Exporter>, L<File::Spec>,
 L<File::Temp>, and L<Scalar::Util>.  All of these are core modules,
 but you may need to install a newer version of File::Temp.
 
+It also requires you to have Ghostscript
+(L<http://pages.cs.wisc.edu/~ghost/>) installed somewhere on your
+PATH, unless you use the C<ghostscript> option to specify its
+location.
+
 =cut
 
 use Exporter 'import';
@@ -106,6 +111,12 @@ sub convert_object
   croak "Don't know how to handle a " . blessed($obj);
 } # end convert_object
 
+=diag C<< Don't know how to handle a %s >>
+
+You passed an object that psconvert doesn't accept as C<$input>.
+
+=cut
+
 #---------------------------------------------------------------------
 sub convert_psfile
 {
@@ -115,6 +126,15 @@ sub convert_psfile
   my $v = PostScript::File->VERSION;
   croak "Must have PostScript::File 2.00 or later, this is only $v"
       unless $v >= 2;
+
+=diag C<< Must have PostScript::File 2.00 or later, this is only %s >>
+
+PostScript::Convert isn't directly compatible with versions of
+PostScript::File older than 2.00.  (If you can't upgrade
+PostScript::File, then you can write the PostScript to a file and pass
+that file to psconvert.)
+
+=cut
 
   # Save old filename:
   my $oldFN  = $ps->get_filename;
@@ -130,6 +150,21 @@ sub convert_psfile
 
     $outFN =~ s/(\.\w+)$// or croak "No extension in $outFN";
     my $ext = $1;
+
+=diag C<< No extension in %s >>
+
+The output filename must have a file extension.
+
+=diag C<< Expected extension in %s >>
+
+The temporary filename created by PostScript::File must have an
+extension, but it didn't.
+
+=diag C<< Can't seek temporary file: %s >>
+
+A seek failed for the specified reason.
+
+=cut
 
     my $dir = File::Temp->newdir;
 
@@ -175,6 +210,12 @@ sub convert_ref
   croak "Don't know how to handle a $type ref"
       unless $type eq 'SCALAR' or $type eq 'ARRAY';
 
+=diag C<< Don't know how to handle a %s ref >>
+
+psconvert only accepts a scalar or array reference as C<$input>.
+
+=cut
+
   require File::Temp;
 
   my $fh = File::Temp->new;
@@ -195,6 +236,12 @@ sub convert_filename
   $opt->{input} ||= $filename;
   open(my $in, '<:raw', $filename) or croak "Unable to open $filename: $!";
 
+=diag C<< Unable to open %s: %s >>
+
+Opening the specified file failed for the specified reason.
+
+=cut
+
   convert_fh($in, $opt);
 } # end convert_filename
 
@@ -204,6 +251,17 @@ sub check_options
   my ($opt) = @_;
 
   my @cmd = ($opt->{ghostscript} || croak "ghostscript not defined");
+
+=diag C<< ghostscript not defined >>
+
+The C<ghostscript> option was somehow unset.  This shouldn't happen,
+since it has a default value.
+
+=diag C<< No output device supplied >>
+
+The C<device> option (which normally comes from the C<format>) was not set.
+
+=cut
 
   foreach my $dir (@{ $opt->{include} || [] }) {
     push @cmd, "-I$dir";
@@ -245,6 +303,22 @@ sub apply_format
 
   my $fmt = $format{ $opt->{format} } or croak "Unknown format $opt->{format}";
 
+=diag C<< No output format or filename supplied >>
+
+You didn't specify the C<format> option, nor did you supply an output
+filename from which to guess it.
+
+=diag C<< Unable to determine format from %s >>
+
+You didn't specify the C<format> option, and the output filename you
+supplied doesn't match any known format.
+
+=diag C<< Unknown format %s >>
+
+The C<format> you specified is not valid.
+
+=cut
+
   while (my ($key, $val) = each %$fmt) {
     $opt->{$key} = $val unless defined $opt->{key};
   }
@@ -269,6 +343,17 @@ sub guess_output_filename
     $fn =~ s/(?:\.\w*)?$/.$ext/;
   }
 
+=diag C<< No extension defined for format %s >>
+
+The specified C<format> failed to define a file extension.
+
+=diag C<< No output filename supplied >>
+
+You didn't specify an output filename, nor did you provide an input
+filename to guess it from.
+
+=cut
+
   croak "No output filename supplied" unless defined $fn and length $fn;
 
   $fn;
@@ -285,6 +370,19 @@ sub convert_fh
   open(STDIN, '<&', $fh)     or croak "Can't redirect STDIN: $!";
   system @cmd;
   open(STDIN, '<&', $oldin)  or croak "Can't restore STDIN: $!";
+
+=diag C<< Can't %s STDIN: %s >>
+
+There was an error while redirecting STDIN in order to run Ghostscript.
+
+=diag C<< Ghostscript failed: exit status %s >>
+
+Ghostscript did not exit successfully.  The exit status is reported as
+a decimal number (C<<< $? >> 8 >>>),
+followed by " (signal %d)" if C<< $? & 127 >> is non-zero,
+followed by " (core dumped)" if C<< $? & 128 >>.
+
+=cut
 
   if ($?) {
     my $exit   = $? >> 8;
@@ -320,21 +418,26 @@ __END__
 
     my $ps = PostScript::File->new;
     $ps->add_to_page(...);
-    psconvert($ps, $output_filename);
+    psconvert($ps, filename => $output_filename, format => 'pnggray');
 
 =head1 DESCRIPTION
 
 PostScript::Convert uses Ghostscript to convert PostScript to other
 formats.  You will need to have Ghostscript installed.
 
+It exports a single function:
+
 =head2 psconvert
 
   psconvert($input, [$output_filename], [options...])
 
-This is the only function exported by PostScript::Convert.  The return
-value is not meaningful.  It throws an exception if an error occurs.
+This takes the PostScript code pointed to by C<$input> and processes
+it through Ghostscript.  The return value is not meaningful.  It
+throws an exception if an error occurs.
 
-C<$input> may be one of the following:
+=head3 Input specifications
+
+C<$input> must be one of the following:
 
 =over
 
@@ -344,20 +447,17 @@ This is interpreted as a filename to open.
 
 =item A scalar reference
 
-This is must be a reference to a string containing a PostScript document.
+This must be a reference to a string containing a PostScript document.
 
 =item An array reference
 
 This must be a reference to an array of strings, which when joined
 together form a PostScript document.  No newlines are added when joining.
 
-=item A glob reference
+=item An open filehandle
 
-This is interpreted as a filehandle to read from.
-
-=item An IO::Handle object
-
-This is interpreted as a filehandle to read from.
+Any argument accepted by L<Scalar::Util/openhandle> is interpreted as
+a filehandle to read from.
 
 =item A PostScript::File object
 
@@ -372,25 +472,91 @@ returns a PostScript::File object.
 
 =back
 
-=head1 DIAGNOSTICS
+=head3 Output options
 
-=for author to fill in:
-    List every single error and warning message that the module can
-    generate (even the ones that will "never happen"), with a full
-    explanation of each problem, one or more likely causes, and any
-    suggested remedies.
+The remaining arguments after C<$input> are key-value pairs that
+control the output.  If there are an odd number of arguments following
+C<$input>, then the first one is the C<filename>.
 
 =over
 
-=item C<< Error message here, perhaps with %s placeholders >>
+=item C<filename>
 
-[Description of error here]
+This is the output filename.  If omitted, it will be calculated from
+C<input> and C<format>.
 
-=item C<< Another error message here >>
+=item C<format>
 
-[Description of error here]
+This is the output format.  If omitted, it will be taken from the
+extension of C<filename>.  Accepted formats are:
 
-[Et cetera, et cetera]
+=over
+
+=item C<png>
+
+24-bit color PNG
+
+=item C<pnggray>
+
+8-bit grayscale PNG
+
+=item C<pngmono>
+
+1-bit monochrome PNG
+
+=item C<pdf>
+
+The preferred PDF version (currently 1.4, but subject to change).
+
+=item C<pdf14>
+
+PDF version 1.4 (Acrobat 5.0 - 2001)
+
+=item C<pdf13>
+
+PDF version 1.3 (Acrobat 4.0 - 1999)
+
+=item C<pdf12>
+
+PDF version 1.2 (Acrobat 3.0 - 1996)
+
+=back
+
+=item C<ghostscript>
+
+This is the Ghostscript executable to use.  It defaults to C<gs>,
+except on Microsoft Windows, where it is C<gswin32c.exe>.
+(You may use a pathname here.)
+
+=item C<include>
+
+An arrayref of directories to add to Ghostscript's search path (for
+advanced users only).
+
+=item C<input>
+
+This is the input filename.  (This is used only for calculating
+C<filename> when necessary.  It does not mean to actually read from
+this file, and it need not exist on disk.)  If omitted, it will be
+taken from C<$input> (if that is a filename or a PostScript::File
+object containing a filename).
+
+=item C<device>
+
+The Ghostscript device to use (for advanced users only).  This is
+normally set automatically from the C<format>.
+
+=item C<gs_param>
+
+An arrayref of additional parameters to pass to Ghostscript (for
+advanced users only).
+
+=item C<unsafe>
+
+Ghostscript is normally run with -dSAFER, which prevents the
+PostScript code from accessing the filesystem.  Passing
+S<< C<< unsafe => 1 >> >> will use -dNOSAFER instead.  Don't do this
+unless you trust the PostScript code you are converting.
 
 =back
 
