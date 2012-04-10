@@ -52,37 +52,28 @@ our %default = (
   ghostscript => ($^O =~ 'MSWin32' ? 'gswin32c.exe' : 'gs'),
 );
 
-our %format = (
-  png => {
-    device    => 'png16m',
-    extension => 'png',
+our %format = do {
+  my @png_param = (
+    extension    => 'png',
     format_param => [qw(-dTextAlphaBits=4 -dGraphicsAlphaBits=4)],
-  },
-  pnggray => {
-    device    => 'pnggray',
-    extension => 'png',
-    format_param => [qw(-dTextAlphaBits=4 -dGraphicsAlphaBits=4)],
-  },
-  pngmono => {
-    device    => 'pngmono',
-    extension => 'png',
-  },
-  pdf14 => {
-    device    => 'pdfwrite',
-    extension => 'pdf',
-    format_param => [qw(-dCompatibilityLevel=1.4 -c .setpdfwrite)],
-  },
-  pdf13 => {
-    device    => 'pdfwrite',
-    extension => 'pdf',
-    format_param => [qw(-dCompatibilityLevel=1.3 -c .setpdfwrite)],
-  },
-  pdf12 => {
-    device    => 'pdfwrite',
-    extension => 'pdf',
-    format_param => [qw(-dCompatibilityLevel=1.2 -c .setpdfwrite)],
-  },
-);
+  );
+
+  my @pdf_param  = (
+    device      => 'pdfwrite',
+    extension   => 'pdf',
+    format_code => [qw(-c .setpdfwrite)],
+    'format_param' # => VALUE
+  );
+
+  (
+    png     => { device => 'png16m',  @png_param },
+    pnggray => { device => 'pnggray', @png_param },
+    pngmono => { device => 'pngmono', extension => 'png' },
+    pdf14   => { @pdf_param => ['-dCompatibilityLevel=1.4'] },
+    pdf13   => { @pdf_param => ['-dCompatibilityLevel=1.3'] },
+    pdf12   => { @pdf_param => ['-dCompatibilityLevel=1.2'] },
+  );
+}; # end %format
 
 $format{pdf} = $format{pdf14};
 
@@ -282,6 +273,7 @@ The C<device> option (which normally comes from the C<format>) was not set.
 
   push @cmd, @{ $opt->{format_param} } if $opt->{format_param};
   push @cmd, @{ $opt->{gs_param} }     if $opt->{gs_param};
+  push @cmd, @{ $opt->{format_code} }  if $opt->{format_code};
 
   print STDERR "@cmd\n" if $Debug;
 
