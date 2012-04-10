@@ -18,7 +18,7 @@ package PostScript::Convert;
 #---------------------------------------------------------------------
 
 use 5.008;
-our $VERSION = '0.01';          ## no critic
+our $VERSION = '0.02';          ## no critic
 
 use strict;
 use warnings;
@@ -39,7 +39,7 @@ location.
 
 =cut
 
-use Exporter 'import';
+use Exporter 5.57 'import';     # exported import method
 
 our @EXPORT = qw(psconvert);
 
@@ -142,7 +142,7 @@ that file to psconvert.)
   my $oldFN  = $ps->get_filename;
   $opt->{input} ||= "$oldFN.ps" if defined $oldFN;
 
-  require File::Temp;
+  require File::Temp; File::Temp->VERSION(0.19); # need newdir method
 
   if ($ps->get_eps and $ps->get_pagecount > 1) {
     # Compute output filename:
@@ -557,7 +557,7 @@ advanced users only).
 
 Ghostscript is normally run with -dSAFER, which prevents the
 PostScript code from accessing the filesystem.  Passing
-S<< C<< unsafe => 1 >> >> will use -dNOSAFER instead.  Don't do this
+S<C<< unsafe => 1 >>> will use -dNOSAFER instead.  Don't do this
 unless you trust the PostScript code you are converting.
 
 =back

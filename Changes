@@ -1,4 +1,7 @@
 Revision history for PostScript::Convert
 
+0.02   NOT
+	- Make dependency on Exporter 5.57 explicit
+
 0.01   February 26, 2010
 	- Initial release
