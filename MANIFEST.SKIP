@@ -1,5 +1,3 @@
-\bRCS\b
-.svn\b
 ~$
 \$$
 \.cmd$
@@ -7,6 +5,8 @@
 ^\#
 ^MANIFEST\.
 ^Makefile$
+^MYMETA\.
+^README\.md
 ^\.
 ^blib/
 \bcjm_

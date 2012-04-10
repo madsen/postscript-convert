@@ -1,0 +1,33 @@
+PostScript-Convert version {{$version}}, released {{$date}}
+
+
+This module uses Ghostscript to convert PostScript to other formats.
+You will need to have Ghostscript installed.
+
+
+
+INSTALLATION
+
+To install this module, run the following commands:
+
+{{ $t->build_instructions }}
+
+
+
+DEPENDENCIES
+
+{{ $t->dependency_list }}
+
+
+
+CHANGES
+    Here's what's new in version {{$version}} of PostScript-Convert:
+    (See the file "Changes" for the full revision history.)
+
+{{$changes}}
+
+
+
+COPYRIGHT AND LICENSE
+
+{{ local $_ = $zilla->license->notice; chomp; $_ }}
