@@ -1,7 +1,8 @@
 Revision history for PostScript::Convert
 
 0.02   NOT
-	- Put gs_param before "-c .setpdfwrite"
+	- Add resolution option
+	- Put gs_param before "-c .setpdfwrite" so it works with PDF output
 	- Make dependency on Exporter 5.57 explicit
 
 0.01   February 26, 2010

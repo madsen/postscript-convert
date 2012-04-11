@@ -1,7 +1,7 @@
 #---------------------------------------------------------------------
 package PostScript::Convert;
 #
-# Copyright 2009 Christopher J. Madsen
+# Copyright 2012 Christopher J. Madsen
 #
 # Author: Christopher J. Madsen <perl@cjmweb.net>
 # Created: November 9, 2009
@@ -271,6 +271,7 @@ The C<device> option (which normally comes from the C<format>) was not set.
   croak "No output device supplied" unless defined $device and length $device;
   push @cmd, "-sDEVICE=$device";
 
+  push @cmd, "-r$opt->{resolution}"    if $opt->{resolution};
   push @cmd, @{ $opt->{format_param} } if $opt->{format_param};
   push @cmd, @{ $opt->{gs_param} }     if $opt->{gs_param};
   push @cmd, @{ $opt->{format_code} }  if $opt->{format_code};
@@ -472,6 +473,9 @@ The remaining arguments after C<$input> are key-value pairs that
 control the output.  If there are an odd number of arguments following
 C<$input>, then the first one is the C<filename>.
 
+Options added since version 0.01 are marked with the
+version they were added in (e.g. "(v0.02)").
+
 =over
 
 =item C<filename>
@@ -535,6 +539,13 @@ this file, and it need not exist on disk.)  If omitted, it will be
 taken from C<$input> (if that is a filename or a PostScript::File
 object containing a filename).
 
+=item C<resolution>
+
+(v0.02) The desired output resolution in pixels per inch.  This is
+either a string of two integers separated by C<x> (C<XRESxYRES>) or a
+single integer (if the X and Y resolution should be the same).
+(Passed to C<gs> as its C<-r> option.)
+
 =item C<device>
 
 The Ghostscript device to use (for advanced users only).  This is
@@ -547,9 +558,9 @@ advanced users only).
 
 =item C<unsafe>
 
-Ghostscript is normally run with -dSAFER, which prevents the
+Ghostscript is normally run with C<-dSAFER>, which prevents the
 PostScript code from accessing the filesystem.  Passing
-S<C<< unsafe => 1 >>> will use -dNOSAFER instead.  Don't do this
+S<C<< unsafe => 1 >>> will use C<-dNOSAFER> instead.  Don't do this
 unless you trust the PostScript code you are converting.
 
 =back
