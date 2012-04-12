@@ -172,6 +172,9 @@ that file to psconvert.)
 
 =cut
 
+  # Get paper size, if necessary:
+  $opt->{paper_size} ||= [ $ps->get_width, $ps->get_height ];
+
   # Save old filename:
   my $oldFN  = $ps->get_filename;
   $opt->{input} ||= "$oldFN.ps" if defined $oldFN;
@@ -609,7 +612,10 @@ object containing a filename).
 indicating a known L<paper size|/"Paper Sizes">, a string of the form
 C<WIDTHxHEIGHT> (where WIDTH and HEIGHT are in inches), or an arrayref
 of two numbers S<C<[ WIDTH, HEIGHT ]>> (where WIDTH and HEIGHT are in
-points).  If omitted, Ghostscript will use its default paper size.
+points).  If omitted, Ghostscript will use its default paper size,
+unless you pass a PostScript::File object (or an object that supplies
+a PostScript::File), in which case the paper size will be taken from
+that object.
 
 =item C<resolution>
 
