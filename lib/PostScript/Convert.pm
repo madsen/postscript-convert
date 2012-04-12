@@ -658,5 +658,5 @@ pass that file to C<psconvert>.)
 =for Pod::Coverage
 apply_format
 check_options
-^convert_
+convert_.+
 guess_output_filename
