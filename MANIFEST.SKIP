@@ -17,3 +17,6 @@
 ^Build.bat$
 ^dist\.ini$
 ^tools/
+^examples/.*\.pdf
+^examples/.*\.ps
+^examples/.*\.png

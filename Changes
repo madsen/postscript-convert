@@ -4,6 +4,7 @@ Revision history for PostScript::Convert
 	- Add paper_size & resolution options
 	- Put gs_param before "-c .setpdfwrite" so it works with PDF output
 	- Make dependency on Exporter 5.57 explicit
+	- Add hello_world example
 
 0.01   February 26, 2010
 	- Initial release

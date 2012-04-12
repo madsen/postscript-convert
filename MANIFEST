@@ -5,6 +5,7 @@ META.json
 META.yml
 Makefile.PL
 README
+examples/hello_world
 examples/psconvert
 lib/PostScript/Convert.pm
 t/00-all_prereqs.t

@@ -1,6 +1,8 @@
 /.build/
 /blib/
+/examples/*.pdf
 /examples/*.ps
+/examples/*.png
 Makefile
 /pm_to_blib
 PostScript-Convert-*.tar.gz
