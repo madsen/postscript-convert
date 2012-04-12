@@ -77,6 +77,49 @@ our %format = do {
 
 $format{pdf} = $format{pdf14};
 
+our %paper_size = (
+  executive           => [522, 756],
+  folio               => [595, 935],
+  'half-letter'       => [612, 397],
+  letter              => [612, 792],
+  legal               => [612, 1008],
+  tabloid             => [792, 1224],
+  superb              => [843, 1227],
+  ledger              => [1224, 792],
+
+  'comm #10 envelope' => [297, 684],
+  'envelope-monarch'  => [280, 542],
+  'envelope-c5'       => [459.21260, 649.13386],
+  'envelope-dl'       => [311.81102, 623.62205],
+
+  a0  => [2383.93701, 3370.39370],
+  a1  => [1683.77953, 2383.93701],
+  a2  => [1190.55118, 1683.77953],
+  a3  => [ 841.88976, 1190.55118],
+  a4  => [ 595.27559,  841.88976],
+  a5  => [ 419.52756,  595.27559],
+  a6  => [ 297.63780,  419.52756],
+  a7  => [ 209.76378,  297.63780],
+  a8  => [ 147.40157,  209.76378],
+  a9  => [ 104.88189,  147.40157],
+  a10 => [  73.70079,  104.88189],
+
+  b0  => [2834.64567, 4008.18898],
+  b1  => [2004.09449, 2834.64567],
+  b2  => [1417.32283, 2004.09449],
+  b3  => [1000.62992, 1417.32283],
+  b4  => [ 708.66142, 1000.62992],
+  b5  => [ 498.89764,  708.66142],
+  b6  => [ 354.33071,  498.89764],
+  b7  => [ 249.44882,  354.33071],
+  b8  => [ 175.74803,  249.44882],
+  b9  => [ 124.72441,  175.74803],
+  b10 => [  87.87402,  124.72441],
+);
+
+$paper_size{"us-$_"} = $paper_size{$_} for qw(letter legal);
+$paper_size{europostcard} = $paper_size{a6};
+
 #---------------------------------------------------------------------
 sub psconvert
 {
@@ -270,6 +313,27 @@ The C<device> option (which normally comes from the C<format>) was not set.
   my $device = $opt->{device};
   croak "No output device supplied" unless defined $device and length $device;
   push @cmd, "-sDEVICE=$device";
+
+  if (defined(my $size = $opt->{paper_size})) {
+    unless (ref $size) {
+      if ($paper_size{lc $size}) {
+        $size = $paper_size{lc $size};
+      } elsif ($size =~ /\A(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)\Z/i) {
+        $size = [ $1 * 72, $2 * 72 ];
+      } else {
+        croak "Unknown paper size '$size'";
+
+=diag C<< Unknown paper size %s >>
+
+The C<paper_size> you specified is not valid.
+
+=cut
+
+      }
+    } # end unless ref $size
+    push @cmd, '-dDEVICEWIDTHPOINTS='  . $size->[0],
+               '-dDEVICEHEIGHTPOINTS=' . $size->[1];
+  } # end if $opt->{paper_size}
 
   push @cmd, "-r$opt->{resolution}"    if $opt->{resolution};
   push @cmd, @{ $opt->{format_param} } if $opt->{format_param};
@@ -539,6 +603,14 @@ this file, and it need not exist on disk.)  If omitted, it will be
 taken from C<$input> (if that is a filename or a PostScript::File
 object containing a filename).
 
+=item C<paper_size>
+
+(v0.02) The desired output paper size.  This can be a string
+indicating a known L<paper size|/"Paper Sizes">, a string of the form
+C<WIDTHxHEIGHT> (where WIDTH and HEIGHT are in inches), or an arrayref
+of two numbers S<C<[ WIDTH, HEIGHT ]>> (where WIDTH and HEIGHT are in
+points).  If omitted, Ghostscript will use its default paper size.
+
 =item C<resolution>
 
 (v0.02) The desired output resolution in pixels per inch.  This is
@@ -565,6 +637,10 @@ unless you trust the PostScript code you are converting.
 
 =back
 
+=head1 CONFIGURATION AND ENVIRONMENT
+
+PostScript::Convert expects to find a Ghostscript executable somewhere
+on your C<$ENV{PATH}>.  (See the C<ghostscript> option for details.)
 
 =head1 INCOMPATIBILITIES
 
