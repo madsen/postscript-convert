@@ -18,7 +18,7 @@ package PostScript::Convert;
 #---------------------------------------------------------------------
 
 use 5.008;
-our $VERSION = '0.02';          ## no critic
+our $VERSION = '0.03';          ## no critic
 
 use strict;
 use warnings;
@@ -69,6 +69,9 @@ our %format = do {
     png     => { device => 'png16m',  @png_param },
     pnggray => { device => 'pnggray', @png_param },
     pngmono => { device => 'pngmono', extension => 'png' },
+    jpeggray=> { device => 'jpeggray', extension => 'jpeg' },
+    jpeg    => { device => 'jpeg', extension => 'jpeg' },
+    jpg     => { device => 'jpeg', extension => 'jpg' },
     pdf14   => { @pdf_param => ['-dCompatibilityLevel=1.4'] },
     pdf13   => { @pdf_param => ['-dCompatibilityLevel=1.3'] },
     pdf12   => { @pdf_param => ['-dCompatibilityLevel=1.2'] },
@@ -584,6 +587,21 @@ PDF version 1.3 (Acrobat 4.0 - 1999)
 =item C<pdf12>
 
 PDF version 1.2 (Acrobat 3.0 - 1996)
+
+=item C<jpg>
+
+color JPEG with default extension .jpg
+(Note: JPEG encoding is not recommended.  It's designed for
+photo-realistic images, not the text and line art more commonly found
+in PostScript files.)
+
+=item C<jpeg>
+
+color JPEG with default extension .jpeg
+
+=item C<jpeggray>
+
+grayscale JPEG with default extension .jpeg
 
 =back
 

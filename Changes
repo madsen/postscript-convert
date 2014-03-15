@@ -1,5 +1,8 @@
 Revision history for PostScript::Convert
 
+0.03   NOT
+	- Add JPEG output formats (not recommended for most files)
+
 0.02   2012-04-12
 	- Add paper_size & resolution options
 	- Put gs_param before "-c .setpdfwrite" so it works with PDF output
