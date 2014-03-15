@@ -2,6 +2,8 @@ Revision history for PostScript::Convert
 
 0.03   NOT
 	- Add JPEG output formats (not recommended for most files)
+	- Document that PDF files are also acceptable input
+	  (This always worked; it just wasn't documented.)
 
 0.02   2012-04-12
 	- Add paper_size & resolution options

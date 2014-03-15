@@ -14,7 +14,7 @@ package PostScript::Convert;
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See either the
 # GNU General Public License or the Artistic License for more details.
 #
-# ABSTRACT: Use Ghostscript to convert PostScript to other formats
+# ABSTRACT: Use Ghostscript to convert PostScript or PDF to other formats
 #---------------------------------------------------------------------
 
 use 5.008;
@@ -487,7 +487,7 @@ __END__
 
 =head1 DESCRIPTION
 
-PostScript::Convert uses Ghostscript to convert PostScript to other
+PostScript::Convert uses Ghostscript to convert PostScript or PDF to other
 formats.  You will need to have Ghostscript installed.
 
 It exports a single function:
@@ -496,7 +496,7 @@ It exports a single function:
 
   psconvert($input, [$output_filename], [options...])
 
-This takes the PostScript code pointed to by C<$input> and processes
+This takes the PostScript code or PDF file pointed to by C<$input> and processes
 it through Ghostscript.  The return value is not meaningful.  It
 throws an exception if an error occurs.
 
