@@ -10,6 +10,6 @@ examples/psconvert
 lib/PostScript/Convert.pm
 t/00-all_prereqs.t
 t/00-load.t
-t/release-perlcritic.t
-t/release-pod-coverage.t
-t/release-pod-syntax.t
+xt/release/perlcritic.t
+xt/release/pod-coverage.t
+xt/release/pod-syntax.t
