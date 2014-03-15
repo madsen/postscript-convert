@@ -595,6 +595,10 @@ color JPEG with default extension .jpg
 photo-realistic images, not the text and line art more commonly found
 in PostScript files.)
 
+You can control the compression quality by using
+S<C<< gs_param => ['-dJPEGQ=N'] >>> (where N is an integer from 0 to 100).
+The default depends on your Ghostscript, but is usually 75.
+
 =item C<jpeg>
 
 color JPEG with default extension .jpeg
