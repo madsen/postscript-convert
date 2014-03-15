@@ -590,7 +590,7 @@ PDF version 1.2 (Acrobat 3.0 - 1996)
 
 =item C<jpg>
 
-color JPEG with default extension .jpg
+(v0.03) color JPEG with default extension .jpg
 (Note: JPEG encoding is not recommended.  It's designed for
 photo-realistic images, not the text and line art more commonly found
 in PostScript files.)
@@ -601,11 +601,11 @@ The default depends on your Ghostscript, but is usually 75.
 
 =item C<jpeg>
 
-color JPEG with default extension .jpeg
+(v0.03) color JPEG with default extension .jpeg
 
 =item C<jpeggray>
 
-grayscale JPEG with default extension .jpeg
+(v0.03) grayscale JPEG with default extension .jpeg
 
 =back
 
